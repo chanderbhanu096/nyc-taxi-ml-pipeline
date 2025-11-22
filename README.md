@@ -21,6 +21,45 @@ A production-grade data platform processing **76M+ NYC taxi trips** (2023-2024) 
 
 ---
 
+## 📸 Visual Results
+
+### Model Performance Comparison
+<p align="center">
+  <img src="docs/images/portfolio_ml_leaderboard.png" alt="Model Performance Comparison" width="900"/>
+</p>
+
+*Comprehensive comparison of 9 machine learning models showing MAE and R² scores. Random Forest achieves the best performance with MAE of $1.05 and 94.8% accuracy.*
+
+### Live Fare Predictor & Diagnostics
+<p align="center">
+  <img src="docs/images/portfolio_ml_predictor.png" alt="Live Fare Predictor" width="900"/>
+</p>
+
+*Interactive tool allowing users to estimate fares based on distance, duration, and surcharges. Includes a breakdown of costs and real-time surcharge logic.*
+
+### Prediction Accuracy
+<p align="center">
+  <img src="docs/images/prediction_accuracy.png" alt="Prediction Accuracy" width="700"/>
+</p>
+
+*Model predictions vs expected fare ranges across different trip types. Green checkmarks indicate predictions within expected range.*
+
+### Interactive Analytics Dashboard
+<p align="center">
+  <img src="docs/images/portfolio_analytics_overview.png" alt="Streamlit Dashboard Overview" width="900"/>
+</p>
+
+*Live Streamlit dashboard showing daily trip trends, rush hour patterns, and borough-level analytics with interactive visualizations.*
+
+### Borough-Level Insights
+<p align="center">
+  <img src="docs/images/portfolio_analytics_boroughs.png" alt="Borough Insights" width="900"/>
+</p>
+
+*Detailed breakdown of fare and duration metrics by borough, highlighting geographic disparities in taxi usage.*
+
+---
+
 ## 🎯 Features
 
 ### Data Engineering
@@ -79,7 +118,7 @@ graph LR
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/nyc-taxi-analytics.git
+git clone https://github.com/chanderbhanu096/nyc-taxi-ml-pipeline.git
 cd nyc-taxi-analytics
 
 # Create virtual environment
@@ -255,10 +294,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👤 Author
 
+<<<<<<< HEAD
 **Your Name**  
 - GitHub: [chanderbhanu096](https://github.com/yourusername)
 - LinkedIn: [your-linkedin](https://linkedin.com/in/your-linkedin)
 - Portfolio: [yourportfolio.com](https://yourportfolio.com)
+=======
+**CHANDER BHANU**  
+- GitHub: [@chanderbhanu096](https://github.com/chanderbhanu096)
+>>>>>>> 57e3031 (feat: Implement advanced analytics dashboard features, integrate ML models, and update project documentation and visualizations.)
 
 ---
 

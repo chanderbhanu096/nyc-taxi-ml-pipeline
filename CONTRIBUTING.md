@@ -6,7 +6,7 @@ Thank you for your interest in contributing! This is a portfolio project, but im
 
 1. **Fork the Repository**
    ```bash
-   git clone https://github.com/yourusername/nyc-taxi-analytics.git
+   git clone https://github.com/chanderbhanu096/nyc-taxi-ml-pipeline.git
    ```
 
 2. **Create a Branch**

@@ -40,23 +40,37 @@ def process_gold():
         
     hourly_stats.write.mode("overwrite").parquet(f"{gold_path}/hourly_stats.parquet")
     
-    # 3. Borough Stats (Geospatial Analysis)
-    print("Creating Borough Stats...")
-    zones = spark.read.parquet(f"data/silver/zones.parquet")
+    # Borough Stats - JOIN with zones
+    print("Aggregating by Borough...")
+    df_zones = spark.read.parquet("data/silver/zones.parquet")
     
-    # Join Trips with Zones (Pickup Location)
-    borough_stats = df.join(zones, df.PULocationID == zones.LocationID) \
-        .groupBy("Borough") \
-        .agg(
-            count("*").alias("total_trips"),
-            avg("trip_duration_mins").alias("avg_duration_mins"),
-            sum("total_amount").alias("total_revenue")
-        ) \
-        .orderBy(desc("total_trips"))
-        
-    borough_stats.write.mode("overwrite").parquet(f"{gold_path}/borough_stats.parquet")
+    # Join trips with zones to get Borough info
+    df_with_borough = df.join(df_zones.select("LocationID", "Borough"), 
+                               df.PULocationID == df_zones.LocationID, 
+                               "left")
     
-    print("Gold layer processing complete.")
+    # Clean up borough names: combine Unknown/N/A/null into "Other/Unmapped"
+    from pyspark.sql.functions import when
+    df_with_borough = df_with_borough.withColumn(
+        "Borough_Clean",
+        when((col("Borough").isNull()) | 
+             (col("Borough") == "Unknown") | 
+             (col("Borough") == "N/A") | 
+             (col("Borough") == ""), 
+             "Other/Unmapped")
+        .otherwise(col("Borough"))
+    )
+    
+    df_borough_stats = df_with_borough.groupBy("Borough_Clean").agg(
+        count("*").alias("total_trips"),
+        avg("trip_duration_mins").alias("avg_duration"),
+        avg("fare_amount").alias("avg_fare"),
+        sum("total_amount").alias("total_revenue")
+    ).withColumnRenamed("Borough_Clean", "Borough").orderBy(col("total_trips").desc())
+    
+    df_borough_stats.write.mode("overwrite").parquet(f"{gold_path}/borough_stats.parquet")
+    
+    print("Gold layer processing complete!")
     spark.stop()
 
 if __name__ == "__main__":

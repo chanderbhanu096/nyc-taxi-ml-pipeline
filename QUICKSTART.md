@@ -14,7 +14,7 @@ This platform:
 
 ```bash
 # 1. Clone and setup
-git clone https://github.com/yourusername/nyc-taxi-analytics.git
+git clone https://github.com/chanderbhanu096/nyc-taxi-ml-pipeline.git
 cd nyc-taxi-analytics
 python3 -m venv .venv
 source .venv/bin/activate
