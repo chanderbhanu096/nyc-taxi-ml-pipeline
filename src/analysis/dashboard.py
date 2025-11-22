@@ -202,6 +202,63 @@ def show_analytics_dashboard(daily, hourly, borough, year_filter):
         fig_fare.update_traces(texttemplate='$%{text:.2f}', textposition='outside')
         st.plotly_chart(fig_fare, use_container_width=True)
 
+    st.markdown("---")
+
+    # --- Advanced Market Insights ---
+    st.header("📈 Advanced Market Insights")
+    
+    tab1, tab2, tab3 = st.tabs(["⏱️ Hourly Trends", "💰 Revenue Share", "📅 Weekly Patterns"])
+    
+    with tab1:
+        st.subheader("Price & Traffic Fluctuations throughout the Day")
+        col_h1, col_h2 = st.columns(2)
+        
+        with col_h1:
+            # Hourly Fare Trend
+            fig_hourly_price = px.line(hourly, x='pickup_hour', y='avg_revenue', 
+                                      title='Average Fare by Hour',
+                                      labels={'pickup_hour': 'Hour of Day', 'avg_revenue': 'Avg Fare ($)'},
+                                      markers=True)
+            fig_hourly_price.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
+            fig_hourly_price.update_traces(line_color='#2ca02c')
+            st.plotly_chart(fig_hourly_price, use_container_width=True)
+            
+        with col_h2:
+            # Hourly Duration Trend
+            fig_hourly_dur = px.line(hourly, x='pickup_hour', y='avg_duration', 
+                                    title='Average Trip Duration by Hour',
+                                    labels={'pickup_hour': 'Hour of Day', 'avg_duration': 'Duration (mins)'},
+                                    markers=True)
+            fig_hourly_dur.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
+            fig_hourly_dur.update_traces(line_color='#d62728')
+            st.plotly_chart(fig_hourly_dur, use_container_width=True)
+            
+    with tab2:
+        st.subheader("Revenue Contribution by Borough")
+        # Pie chart for Revenue Share
+        fig_rev_share = px.pie(borough, values='total_revenue', names='Borough', 
+                              title='Total Revenue Share by Borough',
+                              color_discrete_sequence=px.colors.sequential.Plasma_r,
+                              hole=0.4)
+        fig_rev_share.update_traces(textposition='inside', textinfo='percent+label')
+        st.plotly_chart(fig_rev_share, use_container_width=True)
+        
+    with tab3:
+        st.subheader("Weekly Demand Seasonality")
+        # Calculate Day of Week stats
+        daily['day_name'] = daily['trip_date'].dt.day_name()
+        daily['day_index'] = daily['trip_date'].dt.dayofweek
+        
+        weekly_stats = daily.groupby(['day_name', 'day_index'])['total_trips'].mean().reset_index()
+        weekly_stats = weekly_stats.sort_values('day_index')
+        
+        fig_weekly = px.bar(weekly_stats, x='day_name', y='total_trips',
+                           title='Average Daily Trips by Day of Week',
+                           labels={'day_name': 'Day', 'total_trips': 'Avg Trips'},
+                           color='total_trips', color_continuous_scale='Blues')
+        fig_weekly.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', showlegend=False)
+        st.plotly_chart(fig_weekly, use_container_width=True)
+
 # ==========================================
 # ML PERFORMANCE PAGE
 # ==========================================
