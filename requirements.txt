@@ -1,0 +1,10 @@
+pyspark
+pandas
+faker
+streamlit
+scikit-learn
+xgboost
+plotly
+pyarrow
+requests
+joblib
