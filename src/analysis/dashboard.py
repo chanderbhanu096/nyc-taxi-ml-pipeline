@@ -14,7 +14,7 @@ div[data-testid="stMetric"] {
     background-color: #f0f2f6;
     border-radius: 10px;
     padding: 15px;
-    border: 1px solid #e0e0e0;
+    /* border: 1px solid #e0e0e0; Removed to avoid unwanted border effects */
 }
 </style>
 """, unsafe_allow_html=True)

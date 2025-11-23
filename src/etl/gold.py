@@ -34,7 +34,8 @@ def process_gold():
         .agg(
             count("*").alias("total_trips"),
             avg("trip_distance").alias("avg_speed_proxy"), # proxy
-            avg("total_amount").alias("avg_revenue")
+            avg("total_amount").alias("avg_revenue"),
+            avg("trip_duration_mins").alias("avg_duration")
         ) \
         .orderBy("pickup_hour")
         
