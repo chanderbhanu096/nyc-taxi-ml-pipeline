@@ -97,6 +97,17 @@ graph LR
 | **🥈 Silver** | Cleaned, enriched data | 76M+ | Parquet |
 | **🥇 Gold** | Business aggregations | Summarized | Parquet |
 
+### 🌪️ Orchestration (Airflow)
+
+The pipeline is automated using **Apache Airflow**, ensuring reliable daily updates.
+
+**DAG Workflow:** `nyc_taxi_etl`
+1.  **Run Bronze**: Ingests raw data from landing zone.
+2.  **Run Silver**: Validates schema and cleans data (waits for Bronze).
+3.  **Run Gold**: Aggregates metrics for dashboard (waits for Silver).
+
+*Benefits: Automatic retries on failure, dependency management, and historical backfilling.*
+
 ---
 
 ## 🚀 Quick Start

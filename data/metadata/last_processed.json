@@ -1,0 +1,17 @@
+{
+  "baseline_load_complete": true,
+  "baseline_end_date": "2024-12-31",
+  "last_incremental_month": "2025-02",
+  "processed_files": [
+    "yellow_tripdata_2025-02.parquet",
+    "yellow_tripdata_2025-03.parquet",
+    "yellow_tripdata_2025-01.parquet"
+  ],
+  "arrival_timestamps": {
+    "yellow_tripdata_2025-01.parquet": "2025-11-23T14:16:33.221944",
+    "yellow_tripdata_2025-03.parquet": "2025-11-23T14:21:21.109976",
+    "yellow_tripdata_2025-02.parquet": "2025-11-23T14:21:54.227335"
+  },
+  "last_dag_run": "2025-11-23T14:21:54.227391",
+  "schema_version": "1.0"
+}

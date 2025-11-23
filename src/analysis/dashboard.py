@@ -4,6 +4,7 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import os
+from datetime import datetime
 
 st.set_page_config(page_title="NYC Taxi Analytics", layout="wide", page_icon="🚕")
 
@@ -59,7 +60,7 @@ with st.sidebar:
     st.markdown("---")
     
     # Navigation
-    page = st.radio("📍 Navigation", ["Analytics Dashboard", "ML Model Performance"])
+    page = st.radio("📍 Navigation", ["Analytics Dashboard", "ML Model Performance", "Pipeline Status"])
     st.markdown("---")
     
     # Filters (Only for Analytics Dashboard)
@@ -144,6 +145,7 @@ def show_analytics_dashboard(daily, hourly, borough, year_filter):
 
     with col_bi3:
         # Growth calculation
+        daily = daily.copy()
         daily['month'] = daily['trip_date'].dt.to_period('M')
         monthly = daily.groupby('month')['total_trips'].sum()
         
@@ -178,6 +180,7 @@ def show_analytics_dashboard(daily, hourly, borough, year_filter):
 
     # Charts
     st.header("📊 Daily Trip Statistics")
+    daily = daily.copy()
     daily['total_trips_formatted'] = daily['total_trips'].apply(lambda x: f"{int(x):,}")
     fig_daily = px.line(daily, x='trip_date', y='total_trips', title=f'Daily Trip Volume ({year_filter})', labels={'trip_date': 'Date', 'total_trips': 'Total Trips'})
     fig_daily.update_layout(hovermode='x unified', plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font=dict(size=12), yaxis_tickformat=',')
@@ -246,6 +249,7 @@ def show_analytics_dashboard(daily, hourly, borough, year_filter):
     with tab3:
         st.subheader("Weekly Demand Seasonality")
         # Calculate Day of Week stats
+        daily = daily.copy()
         daily['day_name'] = daily['trip_date'].dt.day_name()
         daily['day_index'] = daily['trip_date'].dt.dayofweek
         
@@ -276,7 +280,7 @@ def show_ml_performance():
     df_models = pd.DataFrame({'Model': models, 'MAE': mae_scores, 'R2': r2_scores})
     df_models = df_models.sort_values('MAE', ascending=True)
 
-    # --- Section 1: Model Comparison ---
+   # --- Section 1: Model Comparison ---
     col1, col2 = st.columns([2, 1])
     
     with col1:
@@ -392,9 +396,161 @@ def show_ml_performance():
         st.caption("Trip Duration and Distance are the dominant factors, followed by Location.")
 
 # ==========================================
+# PIPELINE STATUS PAGE
+# ==========================================
+def show_pipeline_status():
+    st.title("🌪️ Airflow Pipeline Status")
+    st.markdown("### Orchestrating Data at Scale")
+    st.markdown("This project uses **Apache Airflow** to automate the ETL pipeline, ensuring data quality and timeliness.")
+    st.markdown("---")
+    
+    # --- Section 1: DAG Visualization ---
+    st.header("🔗 ETL Workflow (DAG)")
+    st.markdown("The `nyc_taxi_etl` DAG manages dependencies between data layers.")
+    
+    # Create a visual representation of the DAG using Graphviz logic (simulated with columns)
+    col1, col2, col3, col4, col5 = st.columns([1, 0.2, 1, 0.2, 1])
+    
+    with col1:
+        st.info("**🥉 Bronze Layer**\n\n*Raw Ingestion*\n\n`src/etl/bronze.py`")
+    
+    with col2:
+        st.markdown("<h1 style='text-align: center;'>➡️</h1>", unsafe_allow_html=True)
+        
+    with col3:
+        st.info("**🥈 Silver Layer**\n\n*Cleaning & Schema*\n\n`src/etl/silver.py`")
+        
+    with col4:
+        st.markdown("<h1 style='text-align: center;'>➡️</h1>", unsafe_allow_html=True)
+        
+    with col5:
+        st.success("**🥇 Gold Layer**\n\n*Aggregation*\n\n`src/etl/gold.py`")
+        
+    st.caption("Airflow ensures Silver waits for Bronze, and Gold waits for Silver. If any step fails, the pipeline halts.")
+    st.markdown("---")
+    
+    # --- Section 2: Latest Run Status ---
+    st.header("🚦 Latest Run Status")
+    
+    # REAL STATUS CHECK
+    # 1. Check Data Freshness (Gold Layer)
+    gold_path = 'data/gold/daily_stats.parquet'
+    if os.path.exists(gold_path):
+        last_modified = datetime.fromtimestamp(os.path.getmtime(gold_path))
+        last_run_str = last_modified.strftime("%Y-%m-%d %H:%M:%S")
+        
+        # Calculate time since last run
+        time_since = datetime.now() - last_modified
+        if time_since.days == 0 and time_since.seconds < 3600:
+            freshness_color = "normal" # Green-ish in metric
+            freshness_label = "Just now"
+        elif time_since.days == 0:
+            freshness_color = "normal"
+            freshness_label = f"{time_since.seconds // 3600}h ago"
+        else:
+            freshness_color = "off"
+            freshness_label = f"{time_since.days}d ago"
+    else:
+        last_run_str = "Never"
+        freshness_label = "No Data"
+        freshness_color = "off"
+
+    # 2. Check Airflow Service Status
+    # Simple check if 'airflow' process is running
+    try:
+        airflow_status = os.popen("ps aux | grep 'airflow' | grep -v grep").read()
+        is_airflow_running = "airflow" in airflow_status
+    except:
+        is_airflow_running = False
+
+    col_stat1, col_stat2, col_stat3 = st.columns(3)
+    
+    with col_stat1:
+        st.metric("📅 Last Successful Run", last_run_str, freshness_label)
+        
+    with col_stat2:
+        status_val = "Online 🟢" if is_airflow_running else "Offline 🔴"
+        st.metric("🌪️ Airflow Service", status_val, "localhost:8080")
+        
+    with col_stat3:
+        # Count total rows processed (proxy for tasks)
+        total_records = f"{daily_stats['total_trips'].sum():,.0f}" if daily_stats is not None else "0"
+        st.metric("📊 Records Processed", total_records, "Total Volume")
+        
+    if not is_airflow_running:
+        st.warning("⚠️ Airflow is not running. Start it with `./start_airflow.sh` to schedule updates.")
+    else:
+        st.success("✅ Airflow is running! Access the UI at [http://localhost:8080](http://localhost:8080)")
+        
+    st.markdown("---")
+    
+    # --- Section 2.5: Incremental Load Status ---
+    st.header("🔄 Incremental Pipeline Status")
+    
+    # Read metadata file
+    metadata_file = 'data/metadata/last_processed.json'
+    if os.path.exists(metadata_file):
+        import json
+        with open(metadata_file, 'r') as f:
+            metadata = json.load(f)
+        
+        col_inc1, col_inc2, col_inc3 = st.columns(3)
+        
+        with col_inc1:
+            baseline_status = "✅ Complete" if metadata.get('baseline_load_complete', False) else "⏳ In Progress"
+            st.metric("📦 Baseline Load", baseline_status, metadata.get('baseline_end_date', 'N/A'))
+        
+        with col_inc2:
+            last_inc = metadata.get('last_incremental_month', 'None')
+            processed_count = len(metadata.get('processed_files', []))
+            st.metric("🆕 Latest Incremental", last_inc if last_inc else "None yet", f"{processed_count} file(s)")
+        
+        with col_inc3:
+            last_run = metadata.get('last_dag_run', 'Never')
+            if last_run and last_run != 'Never':
+                from datetime import datetime as dt
+                last_run_dt = dt.fromisoformat(last_run)
+                last_run_display = last_run_dt.strftime("%Y-%m-%d %H:%M")
+            else:
+                last_run_display = "Never"
+            st.metric("⏰ Last DAG Run", last_run_display, "Incremental mode")
+        
+        # Show processed files
+        if metadata.get('processed_files'):
+            with st.expander("📋 View Processed Files"):
+                for file in metadata['processed_files']:
+                    arrival = metadata.get('arrival_timestamps', {}).get(file, 'Unknown')
+                    st.text(f"✓ {file} (arrived: {arrival[:10] if arrival != 'Unknown' else 'Unknown'})")
+    else:
+        st.info("ℹ️  Metadata file not found. Run the incremental pipeline to initialize.")
+        
+    st.markdown("---")
+        
+    # --- Section 3: Why Airflow? ---
+    st.header("💡 Why Airflow?")
+    
+    col_why1, col_why2 = st.columns(2)
+    
+    with col_why1:
+        st.subheader("🔄 Automation")
+        st.markdown("""
+        - **Scheduled Runs**: Runs daily at midnight automatically.
+        - **Backfilling**: Can re-process 2 years of history in minutes.
+        """)
+        
+    with col_why2:
+        st.subheader("🛡️ Reliability")
+        st.markdown("""
+        - **Retries**: Automatically retries failed tasks (e.g., network blips).
+        - **Alerting**: Sends emails on failure (configured in DAG).
+        """)
+
+# ==========================================
 # MAIN ROUTING
 # ==========================================
 if page == "Analytics Dashboard":
     show_analytics_dashboard(daily_stats, hourly_stats, borough_stats, selected_year)
-else:
+elif page == "ML Model Performance":
     show_ml_performance()
+else:
+    show_pipeline_status()
