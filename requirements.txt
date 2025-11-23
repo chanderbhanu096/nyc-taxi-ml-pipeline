@@ -8,3 +8,6 @@ plotly
 pyarrow
 requests
 joblib
+apache-airflow
+apache-airflow-providers-fab
+pydantic

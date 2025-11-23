@@ -52,3 +52,4 @@ temp/
 derby.log
 metastore_db/
 spark-warehouse/
+airflow/simple_auth_manager_passwords.json.generated

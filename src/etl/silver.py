@@ -45,7 +45,7 @@ def process_silver():
     df_zones = spark.read.parquet(f"{bronze_path}/zones.parquet")
     df_zones.write.mode("overwrite").parquet(f"{silver_path}/zones.parquet")
     
-    print(f"Silver layer processing complete. Cleaned records: {df_final.count()}")
+    print(f"Silver layer processing complete. Data written to {silver_path}/trips.parquet")
     spark.stop()
 
 if __name__ == "__main__":
