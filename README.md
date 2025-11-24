@@ -23,19 +23,12 @@ A production-grade data platform processing **76M+ NYC taxi trips** (2023-2024) 
 
 ## 📸 Visual Results
 
-### Model Performance Comparison
+### Machine Learning: Leaderboard & Live Prediction
 <p align="center">
-  <img src="docs/images/portfolio_ml_leaderboard.jpeg" alt="Model Performance Comparison" width="900"/>
+  <img src="docs/images/portfolio_ml_predictor.jpeg" alt="ML Performance and Prediction" width="900"/>
 </p>
 
-*Comprehensive comparison of 9 machine learning models showing MAE and R² scores. Random Forest achieves the best performance with MAE of $1.05 and 94.8% accuracy.*
-
-### Live Fare Predictor & Diagnostics
-<p align="center">
-  <img src="docs/images/portfolio_ml_predictor.jpeg" alt="Live Fare Predictor" width="900"/>
-</p>
-
-*Interactive tool allowing users to estimate fares based on distance, duration, and surcharges. Includes a breakdown of costs and real-time surcharge logic.*
+*Unified view showing the model leaderboard (comparing 9 algorithms) and the interactive fare predictor. Users can see model metrics (MAE, R²) and immediately test the best model (Random Forest) with real-time fare estimation.*
 
 
 
@@ -264,7 +257,7 @@ streamlit run src/analysis/dashboard.py
 - [Yellow Taxi Trip Records](https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page)
 - **Period**: January 2023 - December 2024 (24 months)
 - **Records**: 76M+ trips
-- **Size**: ~15GB compressed
+- **Size**: ~1.5GB compressed
 
 ---
 
